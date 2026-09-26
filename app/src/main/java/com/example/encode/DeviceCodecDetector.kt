@@ -132,7 +132,22 @@ object DeviceCodecDetector {
     suspend fun runCompatibilityTestSuite(context: Context): List<CompatibilityTestItem> = withContext(Dispatchers.IO) {
         val results = mutableListOf<CompatibilityTestItem>()
 
-        // 1. FFmpeg Native Initialization
+        // 1. Termux Environment Check
+        val termuxInstalled = TermuxEncodeManager.isTermuxInstalled(context)
+        results.add(
+            CompatibilityTestItem(
+                title = "Termux Ortamı",
+                statusText = if (termuxInstalled) "OK (Yüklü)" else "Bulunamadı",
+                isOk = termuxInstalled,
+                details = if (termuxInstalled) {
+                    "Termux tespit edildi. Encode Al işlemi Termux FFmpeg ve libass üzerinden çalışır."
+                } else {
+                    "Termux yüklü değil. 'Encode Al' için Termux ve 'pkg install ffmpeg' gereklidir."
+                }
+            )
+        )
+
+        // 2. FFmpeg Native / System Initialization
         val ffmpegVersion = try {
             FFmpegKitConfig.getVersion()
         } catch (t: Throwable) {

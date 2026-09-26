@@ -1,5 +1,33 @@
 package com.example.encode
 
+import java.io.File
+
+/**
+ * State representing current hardsub encoding phase, progress, and output.
+ */
+data class EncodeState(
+    val isPreparing: Boolean = false,
+    val isEncoding: Boolean = false,
+    val isCompleted: Boolean = false,
+    val isCancelled: Boolean = false,
+    val currentPhaseText: String = "Hazır",
+    val currentEncoderName: String = "libx264 (Termux FFmpeg)",
+    val progress: Float = 0f, // 0.0 to 1.0
+    val progressPercentage: Int = 0, // 0 to 100
+    val currentFrame: Long = 0L,
+    val totalFrames: Long = 0L,
+    val currentFps: Double = 0.0,
+    val fpsToTotalFramesRatio: Double = 0.0,
+    val estimatedRemainingSeconds: Long = 0L,
+    val averageEstimatedFinishText: String = "--:--",
+    val elapsedSeconds: Long = 0L,
+    val outputVideoFile: File? = null,
+    val errorMessage: String? = null,
+    val lastLogLine: String = "",
+    val fullLogs: String = "",
+    val sourceMetadata: SourceVideoMetadata = SourceVideoMetadata()
+)
+
 /**
  * Supported video encoder types.
  * Hardware encoders (MediaCodec) use target bitrates; software encoders (libx264/libx265) use CRF & presets.
@@ -81,7 +109,7 @@ enum class EncoderOption(
 data class EncodingSettings(
     val encoderOption: EncoderOption = EncoderOption.AUTO,
     val videoCodec: String = "Otomatik", // "Otomatik", "H.264 / AVC", "H.265 / HEVC", "VP9", "AV1"
-    val crf: Int = 23, // 16 to 28
+    val crf: Int = 18, // 16 to 28 (User requested 18)
     val preset: String = "veryfast", // ultrafast, superfast, veryfast, faster, fast, medium
     val bitrate: String = "Otomatik", // "Otomatik", "2000k", "4000k", "6000k", "8000k", "12000k"
     val fps: String = "Kaynakla Aynı", // "Kaynakla Aynı", "24", "30", "60"

@@ -258,4 +258,44 @@ class ExampleUnitTest {
         )
         assertEquals("srt", srtTrack.fileExtension)
     }
+
+    @Test
+    fun testTermuxEscapingSpecialCharactersAndTurkish() {
+        val path = "/storage/emulated/0/Movies/RemSubs/video (1) [720p] & 'özel' çşğü...mkv"
+        val bashEscaped = com.example.encode.TermuxEncodeManager.escapeForBash(path)
+        assertTrue(bashEscaped.startsWith("'"))
+        assertTrue(bashEscaped.endsWith("'"))
+        assertTrue(bashEscaped.contains("'\\''özel'\\''"))
+
+        val filterEscaped = com.example.encode.TermuxEncodeManager.escapeForAssFilter("sub:file,name['1'].ass")
+        assertEquals("sub\\:file\\,name\\[\\'1\\'\\]\\.ass".replace("\\.", "."), filterEscaped)
+        assertTrue(filterEscaped.contains("\\:"))
+        assertTrue(filterEscaped.contains("\\,"))
+        assertTrue(filterEscaped.contains("\\["))
+        assertTrue(filterEscaped.contains("\\]"))
+        assertTrue(filterEscaped.contains("\\'"))
+    }
+
+    @Test
+    fun testTorrentStorageFileTypesAndMimeResolution() {
+        // Video files
+        val mkvName = "ReZero_Episode_01_[1080p].mkv"
+        val mp4Name = "sample_video (test).mp4"
+        val torrentName = "remsubs_release_v1.torrent"
+
+        assertEquals("video/x-matroska", com.example.torrent.TorrentStorageManager.resolveMimeType(mkvName))
+        assertEquals("video/mp4", com.example.torrent.TorrentStorageManager.resolveMimeType(mp4Name))
+        assertEquals("application/x-bittorrent", com.example.torrent.TorrentStorageManager.resolveMimeType(torrentName))
+
+        assertTrue(com.example.torrent.TorrentStorageManager.isVideoFile(mkvName))
+        assertTrue(com.example.torrent.TorrentStorageManager.isVideoFile(mp4Name))
+        org.junit.Assert.assertFalse(com.example.torrent.TorrentStorageManager.isVideoFile(torrentName))
+
+        assertTrue(com.example.torrent.TorrentStorageManager.isTorrentFile(torrentName))
+        org.junit.Assert.assertFalse(com.example.torrent.TorrentStorageManager.isTorrentFile(mkvName))
+
+        // Sanitizing preserves extension and does NOT append .mp4 to .torrent or .mkv
+        assertEquals("ReZero_Episode_01_[1080p].mkv", com.example.torrent.TorrentStorageManager.sanitizeFileName(mkvName))
+        assertEquals("remsubs_release_v1.torrent", com.example.torrent.TorrentStorageManager.sanitizeFileName(torrentName))
+    }
 }

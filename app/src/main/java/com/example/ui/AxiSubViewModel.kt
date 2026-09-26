@@ -555,7 +555,8 @@ class AxiSubViewModel(application: Application) : AndroidViewModel(application) 
                     style = state.subtitleStyle,
                     customFontFile = customFontFile,
                     additionalStyles = additionalStyles,
-                    settings = state.encodingSettings
+                    settings = state.encodingSettings,
+                    sourceMetadata = state.sourceVideoMetadata
                 )
             } catch (t: Throwable) {
                 android.util.Log.e("AxiSubViewModel", "Fatal error in startHardsubEncode", t)
@@ -691,7 +692,7 @@ class AxiSubViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun cancelHardsubEncode() {
-        com.example.encode.HardsubEncoder.cancelEncoding()
+        com.example.encode.HardsubEncoder.cancelEncoding(getApplication())
     }
 
     fun playEncodedVideo(file: File) {
